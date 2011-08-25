@@ -1,1 +1,332 @@
-"My GitHub Page" 
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="HandheldFriendly" content="True">
+		<meta name="MobileOptimized" content="320">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, target-densitydpi=160, width=device-width">
+		<title>Stash: A JavaScript offline storage library</title>
+		<link rel="stylesheet" href="style.css">
+		<link rel="shortcut icon" href="favicon.ico">
+		<link rel="apple-touch-icon-precomposed" href="apple-touch-icon.png">
+		<script src="stash.js"></script>
+		<script src="//google-code-prettify.googlecode.com/svn/trunk/src/prettify.js"></script>
+		<script>if (document.documentElement.clientWidth <= 480) document.title = 'Stash';</script>
+		<script>
+//
+stash.cutAll();
+//
+function execute (el) {
+	if (console.clear) console.clear();
+	stash.cutAll();
+	var jsEl = document.createElement('script');
+	jsEl.innerHTML = el.parentNode.getElementsByTagName('pre')[0].innerHTML.replace(/<[^>]*>/g, '');
+	document.getElementsByTagName('head')[0].appendChild(jsEl);
+}
+		</script>
+	</head>
+	<body>
+		<div class="doc">
+			<div class="doc-content">
+				<div class="doc-head">
+					<div class="doc-head-content">
+						<h1>
+							Stash
+						</h1>
+						<subline>
+							<h2>
+								A JavaScript offline storage library
+							</h2>
+						</subline>
+					</div>
+				</div>
+				<div class="doc-body">
+					<div class="doc-body-content">
+						<p>
+							Stash is a library for JavaScript that makes using offline storage easy.
+							Stash supports storing strings, numbers, booleans, arrays, objects, regular expressions, dates, functions and more (and all of this in less than 1KB).
+						</p>
+						<nav>
+							<ul>
+								<li>
+									<a href="#download">Download</a>
+								</li>
+								<li>
+									<a href="#examples">Examples</a>
+								</li>
+								<li>
+									<a href="#features">Features</a>
+								</li>
+								<li>
+									<a href="#license">License</a>
+								</li>
+								<li>
+									<a href="#contribute">Contribute</a>
+								</li>
+							</ul>
+						</nav>
+						<!-- -->
+						<h3 id="download">
+							Download
+						</h3>
+						<p>
+							<a href="stash.js">Download stash.js</a> or <a href="//github.com/rezitech/stash">get the latest release at GitHub</a>.
+						</p>
+						<!-- -->
+						<h3 id="examples">
+							Examples
+						</h3>
+						<p>
+							To use Stash, include this script anywhere in your page.
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-html">&lt;script src=&quot;//rezitech.github.com/stash/stash.js&quot;&gt;&lt;/script&gt;</pre>
+						</div>
+						<!-- -->
+						<h4>
+							Hello World
+						</h4>
+						<p>
+							Stash is easy to use, with commands like get, set, and cut.
+						</p>
+						<div class="codeblock">
+							<a class="open" href="javascript:;" onclick="javascript:execute(this);">Run</a>
+<pre class="prettyprint lang-js">
+// set foo
+stash.set('foo', 'Hello World');
+
+// log foo
+console.log( stash.get('foo') ); // 'Hello World'
+
+// cut foo
+stash.cut('foo');
+
+// log foo
+console.log( stash.get('foo') ); // null
+</pre>
+						</div>
+						<h4>
+							Different Data Types
+						</h4>
+						<p>
+							Stash can store many types of data.
+						</p>
+						<div class="codeblock">
+							<a class="open" href="javascript:;" onclick="javascript:execute(this);">Run</a>
+<pre class="prettyprint lang-js">
+// set foo
+stash.set('foo', 'Hello World');
+
+// set bar
+stash.set('bar', 7);
+
+// set baz
+stash.set('baz', ['THX', 1138]);
+
+// set qux
+stash.set('qux', { a: 'lorem', b: true, c: [1, 2, 3], d: function (v) { return 'success '+v; } });
+
+// log
+console.log( stash.get('foo') ); // 'Hello World'
+console.log( stash.get('bar') ); // 1138
+console.log( stash.get('baz') ); // ['THX', 1138]
+console.log( stash.get('qux') ); // { a: 'lorem', b: true, c: [1, 2, 3], d: function (v) { return 'success '+v; } });
+console.log( stash.get('qux').d('doubled') ); // 'success doubled'
+</pre>
+						</div>
+						<h4>
+							Data Manipulation
+						</h4>
+						<p>
+							Stash can intelligently add to existing data.
+						</p>
+						<div class="codeblock">
+							<a class="open" href="javascript:;" onclick="javascript:execute(this);">Run</a>
+<pre class="prettyprint lang-js">
+// set foo
+stash.set('foo', 1);
+
+// set bar
+stash.set('bar', { a: 'lorem' });
+
+// add to foo
+stash.add('foo', 5);
+
+// add to bar
+stash.add('bar', { b: 'ipsum' });
+
+// log
+console.log( stash.get('foo') ); // 6
+console.log( stash.get('bar') ); // { a: 'lorem', b: 'ipsum' }
+</pre>
+						</div>
+						<h4>
+							Searching
+						</h4>
+						<p>
+							Stash supports regular expression searching of your offline data.
+						</p>
+						<div class="codeblock">
+							<a class="open" href="javascript:;" onclick="javascript:execute(this);">Run</a>
+<pre class="prettyprint lang-js">
+// set foo, bar, baz
+stash.set({ a: 'The cow goes moo.', b: 'You and me make two.', c: 'The variable is foo.' });
+
+// log
+console.log( stash.search('a', /oo/) ); // "The cow goes moo."
+console.log( stash.search('b', /oo/) ); // false
+console.log( stash.searchAll(/oo/) ); // { a: 'The cow goes moo.', c: 'The variable is foo.' }]
+</pre>
+						</div>
+						<!-- -->
+						<h3 id="features">
+							Features
+						</h3>
+						<p>
+							stash is packed with features for your pleasure.
+						</p>
+						<h4>
+							set
+						</h4>
+						<p>
+							Sets (an) item(s) in offline storage and returns 1 (if any value changed) or 2 (if any value was not changed).
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-js">stash.set('a', 'foo'); // 1
+
+stash.set({ b: 'bar', c: 'baz'}); // 1
+
+stash.set('a', 'foo'); // 2
+
+stash.set('a', 'fee'); // 1
+
+stash.set({ b: 'foo', c: 'baz' }); // 2</pre>
+						</div>
+						<h4>
+							get
+						</h4>
+						<p>
+							Returns an item in offline storage.
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-js">stash.set('foo', 'Success');
+stash.get('foo'); // "Success"</pre>
+						</div>
+						<h4>
+							getAsString
+						</h4>
+						<p>
+							Returns an item as a string in offline storage.
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-js">stash.set('foo', { a: 1, b: 'two' });
+stash.getAsString('foo'); // "{'a':1,'b':'two'}"</pre>
+						</div>
+						<h4>
+							getAll
+						</h4>
+						<p>
+							Returns all items in offline storage.
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-js">stash.set('foo', 'Success');
+stash.getAll() ); // { foo: "Success" }</pre>
+						</div>
+						<h4>
+							add
+						</h4>
+						<p>
+							Adds (an) item(s) to (an) existing one(s) in offline storage and returns 1 (if any value changed) or 2 (if any value was not changed).
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-js">stash.set('a', 'foo'); // 1
+stash.get('a'); // "foo"
+
+stash.add('a', '!'); // 1
+stash.get('a'); // "foo!"
+
+stash.add('a', ''); // 2
+stash.get('a'); // "foo!"</pre>
+						</div>
+						<h4>
+							cut
+						</h4>
+						<p>
+							Removes (an) item(s) in offline storage.
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-js">stash.set('a', 'foo'); // 1
+stash.get('a'); // "foo"
+
+stash.cut('a');
+stash.get('a'); // null</pre>
+						</div>
+						<h4>
+							search
+						</h4>
+						<p>
+							Returns an item in offline storage or false depending on if its content is matched by a regular expression.
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-js">stash.set('a', 'foo');
+
+stash.search('a', /oo/); // "foo"
+stash.search('a', /ooo/); // false</pre>
+						</div>
+						<h4>
+							searchAll
+						</h4>
+						<p>
+							Returns items in offline storage if their content is matched by a regular expression.
+						</p>
+						<div class="codeblock">
+<pre class="prettyprint lang-js">stash.set({ a: 'foo', b: 'shoe', c: 'moo', d: true });
+
+stash.searchAll(/oo/); // { a: 'foo', c: 'moo' }
+stash.searchAll(/e\b/); // { b: 'shoe', d: true }</pre>
+						</div>
+						<!-- -->
+						<h3 id="license">
+							License
+						</h3>
+						<p>
+							Stash uses a dual <a href="http://www.opensource.org/licenses/MIT">MIT</a>/<a href="http://www.opensource.org/licenses/GPL-2.0">GPL-2.0</a> License.
+							The <a href="http://www.opensource.org/licenses/MIT">MIT License</a> is recommended for most projects, because it is simple, easy to understand, and it places almost no restrictions on what you can do with Teepee.
+							If the <a href="http://www.opensource.org/licenses/GPL-2.0">GPL-2.0 License</a> suits your project better, then you are also free to use Teepee under that license.
+						</p>
+						<p>
+							You don't have to do anything special to choose one license or the other, and you don't have to notify anyone which license you are using.
+							You are free to use Stash in commercial projects as long as the copyright header is left intact.
+						</p>
+						<!-- -->
+						<h3 id="contribute">
+							Contribute
+						</h3>
+						<ol>
+							<li>
+								Fork it.
+							</li>
+							<li>
+								Create a branch. (<code>git checkout -b my_stash</code>)
+							</li>
+							<li>
+								Commit your changes. (<code>git commit -am &quot;Added Awesomeness&quot;</code>)
+							</li>
+							<li>
+								Push to the branch. (<code>git push origin my_stash</code>)
+							</li>
+							<li>
+								Create an <a href="//github.com/rezitech/stash/issues">Issue</a> with a link to your branca.
+							</li>
+							<li>
+								Enjoy a refreshing Coca Cola Classic (you earned it!) and wait.
+							</li>
+						</ol>
+						<!-- -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>prettyPrint();</script>
+	</body>
+</html>
