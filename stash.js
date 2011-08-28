@@ -1,4 +1,4 @@
-/*! Stash v1.1.1 MIT/GPL2 @rezitech */
+/*! Stash v1.2.1 MIT/GPL2 @rezitech */
 (function (win, doc, ls) {
 	// Returns a safely quoted string
 	function quoteStr (str) {
@@ -106,18 +106,28 @@
 		// adds to a local storage item, returns 1 if item(s) changed and 2 if not
 		add: function (attr, val) {
 			var item = this.get(attr);
-			// if the existing item does not exist
-			if ( !isType(null, item) ) null;
 			// if both the existing item and the new item are an array
-			else if ( isType('Array', item)  && isType('Array', val) ) val = item.concat(val);
+			if ( isType('Array', item) && isType('Array', val) ) val = item.concat(val);
+			// if both the existing item is an array
+			else if ( isType('Array', item) ) val = item.push(val) && item;
+			// if both the existing item and the new item are a boolean
+			else if ( isType('Boolean', item) ) val = item && !!val;
+			// if both the existing item and the new item are a boolean
+			else if ( isType('Date', item) && !isNaN(val * 1) ) val = new Date(item.getTime() + (val * 1));
 			// if both the existing item and the new item are a number
-			else if ( isType('Number', item) && isType('Number', val) ) val += item;
+			else if ( isType('Number', item) && !isNaN(val * 1) ) val = item + (val * 1);
 			// if both the existing item and the new item are an object
 			else if ( isType('Object', item) && isType('Object', val) ) val = extendObject(item, val);
+			// if both the existing item and the new item are a regular expression
+			else if ( isType('RegExp', item) && isType('RegExp', val) ) {
+				var
+				regExpMatch = /^\/([\W\w]*)\/([a-z]*?)$/,
+				regExpA = String(item).match(regExpMatch),
+				regExpB = String(val).match(regExpMatch);
+				val = new RegExp(regExpA[1]+regExpB[1], regExpA[2]+regExpB[2]);
+			}
 			// if both the existing item and the new item are a string
-			else if ( isType('String', item) && isType('String', val) ) val = item+val;
-			// otherwise return false
-			else return false;
+			else if ( isType('String', item) ) val = item+val;
 			// set the new item and return its value
 			return this.set(attr, val);
 		},
