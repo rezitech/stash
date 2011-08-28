@@ -6,10 +6,10 @@
 		<meta name="MobileOptimized" content="320">
 		<meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, target-densitydpi=160, width=device-width">
 		<title>Stash: A JavaScript offline storage library</title>
-		<link rel="stylesheet" href="style.css">
-		<link rel="shortcut icon" href="favicon.ico">
-		<link rel="apple-touch-icon-precomposed" href="apple-touch-icon.png">
-		<script src="stash.js"></script>
+		<link rel="stylesheet" href="style.css?v=20110828">
+		<link rel="shortcut icon" href="favicon.ico?v=20110828">
+		<link rel="apple-touch-icon-precomposed" href="apple-touch-icon.png?v=20110828">
+		<script src="stash.js?v=1.2.2"></script>
 		<script src="//google-code-prettify.googlecode.com/svn/trunk/src/prettify.js"></script>
 		<script>if (document.documentElement.clientWidth <= 480) document.title = 'Stash';</script>
 		<script>
@@ -230,7 +230,7 @@ stash.getAsString('foo'); // "{'a':1,'b':'two'}"</pre>
 						</p>
 						<div class="codeblock">
 <pre class="prettyprint lang-js">stash.set('foo', 'Success');
-stash.getAll() ); // { foo: "Success" }</pre>
+stash.getAll(); // { foo: "Success" }</pre>
 						</div>
 						<h4>
 							add
@@ -259,7 +259,7 @@ stash.get('a'); // "foo!"</pre>
 stash.get('a'); // "foo"
 
 stash.cut('a');
-stash.get('a'); // null</pre>
+stash.get('a'); // undefined</pre>
 						</div>
 						<h4>
 							search
