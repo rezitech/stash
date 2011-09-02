@@ -13,7 +13,7 @@
 	}
 	// Returns whether a constructor type matches a value's constructor
 	function isType(Ctor, val) {
-		return (val !== undefined && val !== null && (!Ctor || val.constructor === Ctor.prototype.constructor));
+		return (val !== undefined && val !== null && (!Ctor || val.constructor === Ctor));
 	}
 	// Returns and extended object from the arguments
 	function extendObject() {
