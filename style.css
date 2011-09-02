@@ -93,7 +93,7 @@ nav a {
 .codeblock { position: relative; }
 .codeblock .open { background: #FCFCFC; border: 1px solid #EEE; border-radius: 0.5em; font-size: 75%; padding: 0.25em 0.5em; position: absolute; right: 0.5em; top: 0.5em; }
 
-pre, pre code { font: 75% 'Bitstream Vera Sans Mono', 'Courier', monospace; }
+pre, pre code { font: 75%/1.5 'Bitstream Vera Sans Mono', 'Courier', monospace; }
 pre {
 	background: #F9F9F9;
 	border: 1px solid #EEE;
