@@ -2,16 +2,19 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+		<title>Stash: A JavaScript offline storage library</title>
+		<!-- Style -->
 		<meta name="HandheldFriendly" content="True">
 		<meta name="MobileOptimized" content="320">
 		<meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, target-densitydpi=160, width=device-width">
-		<title>Stash: A JavaScript offline storage library</title>
-		<link rel="stylesheet" href="style.css?v=20110828">
-		<link rel="shortcut icon" href="favicon.ico?v=20110828">
 		<link rel="apple-touch-icon-precomposed" href="apple-touch-icon.png?v=20110828">
+		<link rel="shortcut icon" href="favicon.ico?v=20110828">
+		<link rel="stylesheet" href="style.css?v=20110828">
+		<!-- Functionality -->
+		<!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 		<script src="stash.min.js?v=1.2.3"></script>
 		<script src="//google-code-prettify.googlecode.com/svn/trunk/src/prettify.js"></script>
-		<script>if (document.documentElement.clientWidth <= 480) document.title = 'Stash';</script>
+		<script>if (/android|iPad|iPhone|iPod/.test(navigator.platform)) document.title = 'Stash';</script>
 		<script>
 //
 stash.cutAll();
