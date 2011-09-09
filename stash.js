@@ -1,40 +1,41 @@
-/*! Stash v1.2.3 MIT/GPL2 @rezitech */
+/*! Stash v1.2.4 MIT/GPL2 @rezitech */
 (function (win, ls, doc) {
+
+	// Returns whether a constructor is the constructor of a value
+	function isType(Ctor, val) {
+		return val !== undefined && val !== null && val.constructor === Ctor;
+	}
+
 	// Returns a safely quoted string
 	function quoteStr(str) {
 		return "'" +
-			String(str)
-			.replace(/\\/g, '\\\\')
-			.replace(/'/g, "\\'")
-			.replace(/\n/g, '\\n')
-			.replace(/\r/g, '\\r')
-			.replace(/\t/g, '\\t')
-			+ "'";
+		String(str)
+		.replace(/\\/g, '\\\\')
+		.replace(/'/g, "\\'")
+		.replace(/\n/g, '\\n')
+		.replace(/\r/g, '\\r')
+		.replace(/\t/g, '\\t') +
+		"'";
 	}
-	// Returns whether a constructor type matches a value's constructor
-	function isType(Ctor, val) {
-		return (val !== undefined && val !== null && (!Ctor || val.constructor === Ctor));
+
+	// Return an element from HTML
+	function elementFromHtml(html) {
+		var container = doc.createElement('_');
+		container.innerHTML = html;
+		return container.firstChild;
 	}
-	// Returns and extended object from the arguments
-	function extendObject() {
-		var extObj = {}, arg = arguments, argLen = arg.length, i = -1, e;
-		while (++i < argLen)
-			if (isType(Object, arg[i]))
-				for (e in arg[i])
-					extObj[e] = isType(Object, extObj[e]) && isType(Object, arg[i][e])
-						? arg.callee(extObj[e], arg[i][e])
-						: arg[i][e];
-		return extObj;
+
+	// Return HTML from an element
+	function HtmlFromElement(el) {
+		if (el.outerHTML) return el.outerHTML;
+		var container = doc.createElement('_');
+		container.appendChild(el.cloneNode(true));
+		return container.innerHTML;
 	}
+
 	// Returns a string version of JavaScript
 	function stringify(val) {
-		var
-		callee = arguments.callee;
-		// special
-		if (val === doc) return 'document';
-		if (val === doc.body) return 'document.body';
-		if (val === doc.documentElement) return 'document.documentElement';
-		if (val === win) return 'window';
+		var callee = arguments.callee, valArr = [], valLen, i = -1, e;
 		// string
 		if (isType(String, val)) return quoteStr(val);
 		// boolean, function, number, regexp, undefined, null
@@ -42,9 +43,9 @@
 			val === undefined ||
 			val === null ||
 			isType(Boolean, val) ||
-			isType(Function, val) ||
 			isType(Number, val) ||
-			isType(RegExp, val)
+			isType(RegExp, val) ||
+			(isType(Function, val) && !/^function[^\{]+\{\s*\[native code\]/.test(String(val)))
 		) return String(val);
 		// date
 		if (isType(Date, val)) {
@@ -52,109 +53,126 @@
 		}
 		// array
 		if (isType(Array, val)) {
-			var newVal = [], valLen = val.length, i = -1;
-			while (++i < valLen) newVal.push(callee(val[i]));
-			return '[' + newVal + ']';
+			valLen = val.length;
+			while (++i < valLen) valArr.push(callee(val[i]));
+			return '[' + valArr + ']';
 		}
 		// object
 		if (isType(Object, val)) {
-			var newVal = [], e;
-			for (e in val) newVal.push(quoteStr(e) + ':' + callee(val[e]));
-			return '{' + newVal + '}';
+			for (e in val) valArr.push(quoteStr(e) + ':' + callee(val[e]));
+			return '{' + valArr + '}';
 		}
-		// else undefined
-		return String(undefined);
+		// native
+		if (val === win) return 'window';
+		for (e in win) if (val === win[e]) return 'window.'+e;
+		for (e in doc) if (val === doc[e]) return 'document.'+e;
+		// node
+		if (val.nodeName) return 'h('+quoteStr(HtmlFromElement(val))+')';
 	}
+
 	// Returns a JavaScript version of a string
 	function unstringify(str) {
-		return new Function('return ' + str).apply(win);
+		return new Function('var a=arguments;h=a[0];return ' + str).apply(win,[elementFromHtml]);
 	}
-	// The stash object
+
+	// Returns an extended object from arguments
+	function extendObject() {
+		var extObj = {}, arg = arguments, argLen = arg.length, i = -1, e;
+		while (++i < argLen)
+			if (isType(Object, arg[i]))
+				for (e in arg[i])
+					extObj[e] = isType(Object, extObj[e]) && isType(Object, arg[i][e]) ? arg.callee(extObj[e], arg[i][e]) : arg[i][e];
+		return extObj;
+	}
+
+	// Writes to and extends local storage
+	function setAndReturnIfValueChanged(attr, newValue, extend) {
+		var rawValue = ls[attr], oldValue;
+		if (extend) {
+			oldValue = unstringify(rawValue);
+			// if the existing item is an array
+			if (isType(Array, oldValue)) newValue = oldValue.concat(newValue);
+			// if the existing item is a boolean
+			else if (isType(Boolean, oldValue)) newValue = oldValue && !!newValue;
+			// if the existing item is a date and the new item can be a number
+			else if (isType(Date, oldValue) && !isNaN(newValue * 1)) newValue = new Date(oldValue.getTime() + (newValue * 1));
+			// if both the existing item and the new item are a function
+			else if (isType(Function, oldValue) && isType(Function, newValue)) newValue = new Function('return(' + String(oldValue) + ').apply(this, arguments)&&(' + String(newValue) + ').apply(this, arguments)');
+			// if the existing item is a number and the new item can be a number
+			else if (isType(Number, oldValue) && !isNaN(newValue * 1)) newValue = oldValue + (newValue * 1);
+			// if both the existing item and the new item are an object
+			else if (isType(Object, oldValue) && isType(Object, newValue)) newValue = extendObject(oldValue, newValue);
+			// if both the existing item and the new item are a regular expression
+			else if (isType(RegExp, oldValue) && isType(RegExp, newValue)) {
+				var
+				regExpMatch = /^\/([\W\w]*)\/([a-z]*?)$/,	
+				regExpA = String(oldValue).match(regExpMatch),
+				regExpB = String(newValue).match(regExpMatch);
+				newValue = new RegExp(regExpA[1] + regExpB[1], regExpA[2] + regExpB[2]);
+			}
+			// if the existing item is a string
+			else if (isType(String, oldValue)) newValue = oldValue + String(newValue);
+			else return 2;
+		}
+		newValue = stringify(newValue);
+		if (rawValue === newValue) return 2;
+		return (ls[attr] = newValue) && 1;
+	}
+
+	// Stash
 	win.stash = {
 		// returns whether a storage item exists or not
-		has: function (attr) {
-			return ls[attr] !== undefined;
+		has: function () {
+			var args = [].concat.apply([], arguments), arg, i = -1;
+			//
+			while ((arg = args[++i])) if (ls[arg] === undefined) return false;
+			return true;
 		},
 		// returns a local storage item
 		get: function (attr) {
-			return unstringify(ls[attr]);
-		},
-		// returns a local storage item in raw string form
-		getAsString: function (attr) {
-			return ls[attr];
+			var args = [].concat.apply([], arguments), arg, i = -1, items = {};
+			//
+			if (args.length === 1) return unstringify(ls[attr]);
+			while ((arg = args[++i])) items[arg] = unstringify(ls[arg]);
+			return items;
 		},
 		// returns all local storage items
 		getAll: function () {
-			var items = {}, e;
+			var e, items = {};
 			for (e in ls) items[e] = ls[e];
 			return items;
 		},
 		// sets a local storage item, returns 1 if item(s) changed and 2 if not
 		set: function (attr, val) {
-			var returnValue = 1, currentValue, e;
-			if (isType(Object, attr)) {
-				for (e in attr) {
-					val = stringify(attr[e]);
-					currentValue = ls[e];
-					if (val === currentValue) returnValue = 2;
-					else ls[e] = val;
-				}
-				return returnValue;
-			}
-			val = stringify(val);
-			currentValue = ls[attr];
-			if (val === currentValue) return 2;
-			else ls[attr] = val;
-			return 1;
+			var args = [].concat.apply([], arguments), arg, i = -1, e, returnValue = 2;
+			//
+			if (isType(String, attr)) return setAndReturnIfValueChanged(attr, val);
+			//
+			while ((arg = args[++i])) for (e in arg) returnValue = Math.min(returnValue, setAndReturnIfValueChanged(e, arg[e]));
+			//
+			return returnValue;
 		},
 		// adds to a local storage item, returns 1 if item(s) changed and 2 if not
 		add: function (attr, val) {
-			var item = this.get(attr);
-			// if both the existing item and the new item are an array
-			if (isType(Array, item) && isType(Array, val)) val = item.concat(val);
-			// if the existing item is an array
-			else if (isType(Array, item)) val = item.push(val) && item;
-			// if the existing item is a boolean
-			else if (isType(Boolean, item)) val = item && !!val;
-			// if the existing item is a date and the new item can be a number
-			else if (isType(Date, item) && !isNaN(val * 1)) val = new Date(item.getTime() + (val * 1));
-			// if both the existing item and the new item are a function
-			else if (isType(Function, item) && isType(Function, val)) val = new Function('return(' + String(item) + ').apply(this, arguments)&&(' + String(val) + ').apply(this, arguments)');
-			// if the existing item is a number and the new item can be a number
-			else if (isType(Number, item) && !isNaN(val * 1)) val = item + (val * 1);
-			// if both the existing item and the new item are an object
-			else if (isType(Object, item) && isType(Object, val)) val = extendObject(item, val);
-			// if both the existing item and the new item are a regular expression
-			else if (isType(RegExp, item) && isType(RegExp, val)) {
-				var
-				regExpMatch = /^\/([\W\w]*)\/([a-z]*?)$/,
-				regExpA = String(item).match(regExpMatch),
-				regExpB = String(val).match(regExpMatch);
-				val = new RegExp(regExpA[1] + regExpB[1], regExpA[2] + regExpB[2]);
-			}
-			// if the existing item is a string
-			else if (isType(String, item)) val = item + String(val);
-			else return 2;
-			// set the new item and return its value
-			return this.set(attr, val);
+			var args = [].concat.apply([], arguments), arg, i = -1, e, returnValue = 2;
+			//
+			if (isType(String, attr)) return setAndReturnIfValueChanged(attr, val, true);
+			//
+			while ((arg = args[++i])) for (e in arg) returnValue = Math.min(returnValue, setAndReturnIfValueChanged(e, arg[e], true));
+			//
+			return returnValue;
 		},
 		// removals a local storage item
 		cut: function (attr) {
-			delete ls[attr];
+			var args = [].concat.apply([], arguments), arg, i = -1;
+			//
+			while ((arg = args[++i])) delete ls[arg];
+			return true;
 		},
 		// removes all items from local storage
 		cutAll: function () {
 			for (var e in ls) delete ls[e];
-		},
-		// returns a local storage item if a regular expression search of its contents is matched
-		search: function (attr, re) {
-			return re.test(ls[attr]) ? unstringify(ls[attr]) : false;
-		},
-		// returns local storage items by if a regular expression search of its contents is matched
-		searchAll: function (re) {
-			var items = {}, e;
-			for (e in ls) if (re.test(ls[e])) items[e] = unstringify(ls[e]);
-			return items;
+			return true;
 		}
 	};
 })(this, this.localStorage, document);

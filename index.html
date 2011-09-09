@@ -12,7 +12,7 @@
 		<link rel="stylesheet" href="style.css?v=20110828">
 		<!-- Functionality -->
 		<!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-		<script src="stash.min.js?v=1.2.3"></script>
+		<script src="stash.min.js?v=1.2.4"></script>
 		<script src="//google-code-prettify.googlecode.com/svn/trunk/src/prettify.js"></script>
 		<script>if (/android|iPad|iPhone|iPod/.test(navigator.platform)) document.title = 'Stash';</script>
 		<script>
@@ -46,8 +46,8 @@ function execute (el) {
 				<div class="doc-body">
 					<div class="doc-body-content">
 						<p>
-							Stash is a library for JavaScript that makes using offline storage easy.
-							Stash supports storing strings, numbers, booleans, arrays, objects, regular expressions, dates, functions and more (and all of this in less than 1KB).
+							<strong>stash</strong> is a library for JavaScript that makes using offline storage easy.
+							<strong>stash</strong> supports storing strings, numbers, booleans, arrays, objects, regular expressions, dates, functions and more (and all of this in ~1KB).
 						</p>
 						<nav>
 							<ul>
@@ -80,7 +80,7 @@ function execute (el) {
 							Examples
 						</h3>
 						<p>
-							To use Stash, include this script anywhere in your page.
+							To use <strong>stash</strong>, include this script anywhere in your page.
 						</p>
 						<div class="codeblock">
 <pre class="prettyprint lang-html">&lt;script src=&quot;//rezitech.github.com/stash/stash.min.js&quot;&gt;&lt;/script&gt;</pre>
@@ -90,7 +90,7 @@ function execute (el) {
 							Hello World
 						</h4>
 						<p>
-							Stash is easy to use, with commands like get, set, and cut.
+							<strong>stash</strong> is easy to use, with commands like get, set, and cut.
 						</p>
 						<div class="codeblock">
 							<a class="open" href="javascript:;" onclick="javascript:execute(this);">Run</a>
@@ -112,7 +112,7 @@ console.log( stash.get('foo') ); // null
 							Different Data Types
 						</h4>
 						<p>
-							Stash can store many types of data.
+							<strong>stash</strong> can store many types of data.
 						</p>
 						<div class="codeblock">
 							<a class="open" href="javascript:;" onclick="javascript:execute(this);">Run</a>
@@ -141,7 +141,7 @@ console.log( stash.get('qux').d('doubled') ); // 'success doubled'
 							Data Manipulation
 						</h4>
 						<p>
-							Stash can intelligently add to existing data.
+							<strong>stash</strong> can intelligently add to existing data.
 						</p>
 						<div class="codeblock">
 							<a class="open" href="javascript:;" onclick="javascript:execute(this);">Run</a>
@@ -164,21 +164,26 @@ console.log( stash.get('bar') ); // { a: 'lorem', b: 'ipsum' }
 </pre>
 						</div>
 						<h4>
-							Searching
+							DOM Elements
 						</h4>
 						<p>
-							Stash supports regular expression searching of your offline data.
+							<strong>stash</strong> supports the storage of DOM elements.
 						</p>
 						<div class="codeblock">
 							<a class="open" href="javascript:;" onclick="javascript:execute(this);">Run</a>
 <pre class="prettyprint lang-js">
-// set foo, bar, baz
-stash.set({ a: 'The cow goes moo.', b: 'You and me make two.', c: 'The variable is foo.' });
+// create a DIV element with innerHTML and a "foo" attribute
+var div = document.createElement('div');
+div.innerHTML = 'Hello World';
+div.setAttribute('foo', 'bar');
+
+// set foo as the DIV element
+stash.set('foo', div);
 
 // log
-console.log( stash.search('a', /oo/) ); // "The cow goes moo."
-console.log( stash.search('b', /oo/) ); // false
-console.log( stash.searchAll(/oo/) ); // { a: 'The cow goes moo.', c: 'The variable is foo.' }]
+console.log( stash.get('foo').nodeName ); // "DIV"
+console.log( stash.get('foo').innerHTML ); // "Hello World"
+console.log( stash.get('foo').getAttribute('foo') ); // "bar"
 </pre>
 						</div>
 						<!-- -->
@@ -186,7 +191,10 @@ console.log( stash.searchAll(/oo/) ); // { a: 'The cow goes moo.', c: 'The varia
 							Features
 						</h3>
 						<p>
-							stash is packed with features for your pleasure.
+							<strong>stash</strong> is packed with features for your pleasure, tested over a hundred different ways with <strong><a href="http://docs.jquery.com/Qunit">qUnit</a></strong>.
+						</p>
+						<p>
+							<a href="tests.html">Run the tests on your own machine</a>.
 						</p>
 						<h4>
 							set
@@ -264,42 +272,18 @@ stash.get('a'); // "foo"
 stash.cut('a');
 stash.get('a'); // undefined</pre>
 						</div>
-						<h4>
-							search
-						</h4>
-						<p>
-							Returns an item in offline storage or false depending on if its content is matched by a regular expression.
-						</p>
-						<div class="codeblock">
-<pre class="prettyprint lang-js">stash.set('a', 'foo');
-
-stash.search('a', /oo/); // "foo"
-stash.search('a', /ooo/); // false</pre>
-						</div>
-						<h4>
-							searchAll
-						</h4>
-						<p>
-							Returns items in offline storage if their content is matched by a regular expression.
-						</p>
-						<div class="codeblock">
-<pre class="prettyprint lang-js">stash.set({ a: 'foo', b: 'shoe', c: 'moo', d: true });
-
-stash.searchAll(/oo/); // { a: 'foo', c: 'moo' }
-stash.searchAll(/e\b/); // { b: 'shoe', d: true }</pre>
-						</div>
 						<!-- -->
 						<h3 id="license">
 							License
 						</h3>
 						<p>
-							Stash uses a dual <a href="http://www.opensource.org/licenses/MIT">MIT</a>/<a href="http://www.opensource.org/licenses/GPL-2.0">GPL-2.0</a> License.
-							The <a href="http://www.opensource.org/licenses/MIT">MIT License</a> is recommended for most projects, because it is simple, easy to understand, and it places almost no restrictions on what you can do with Stash.
-							If the <a href="http://www.opensource.org/licenses/GPL-2.0">GPL-2.0 License</a> suits your project better, then you are also free to use Stash under that license.
+							<strong>stash</strong> uses a dual <a href="http://www.opensource.org/licenses/MIT">MIT</a>/<a href="http://www.opensource.org/licenses/GPL-2.0">GPL-2.0</a> License.
+							The <a href="http://www.opensource.org/licenses/MIT">MIT License</a> is recommended for most projects, because it is simple, easy to understand, and it places almost no restrictions on what you can do with <strong>stash</strong>.
+							If the <a href="http://www.opensource.org/licenses/GPL-2.0">GPL-2.0 License</a> suits your project better, then you are also free to use <strong>stash</strong> under that license.
 						</p>
 						<p>
 							You don't have to do anything special to choose one license or the other, and you don't have to notify anyone which license you are using.
-							You are free to use Stash in commercial projects as long as the copyright header is left intact.
+							You are free to use <strong>stash</strong> in commercial projects as long as the copyright header is left intact.
 						</p>
 						<!-- -->
 						<h3 id="contribute">
