@@ -131,15 +131,21 @@
 		// returns a local storage item
 		get: function (attr) {
 			var args = [].concat.apply([], arguments), arg, i = -1, items = {};
-			//
-			if (args.length === 1) return unstringify(ls[attr]);
-			while ((arg = args[++i])) items[arg] = unstringify(ls[arg]);
+			if (args.length === 1) return this.asString? ls[attr] : unstringify(ls[attr]);
+			while ((arg = args[++i])) items[arg] = this.asString? ls[attr] : unstringify(ls[attr]);
 			return items;
+		},
+		// returns a local storage item as String
+		getAsString: function (attr) {
+			this.asString = true;
+			var value = this.get(attr);
+			this.asString = false;
+			return value;
 		},
 		// returns all local storage items
 		getAll: function () {
 			var e, items = {};
-			for (e in ls) items[e] = ls[e];
+			for (e in ls) items[e] = unstringify(ls[e]);
 			return items;
 		},
 		// sets a local storage item, returns 1 if item(s) changed and 2 if not
@@ -170,7 +176,7 @@
 			return true;
 		},
 		// removes all items from local storage
-		cutAll: function () {
+		cutAll: function (where) {
 			for (var e in ls) delete ls[e];
 			return true;
 		}
